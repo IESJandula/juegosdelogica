@@ -58,7 +58,8 @@ const rankingTop10 = computed(() => ranking.value)
 
 const won = computed(() => {
   const last = state.path[state.path.length - 1]
-  return !!last && grid[last.r]?.[last.c] === 'F'
+  const prev = state.path[state.path.length - 2]
+  return !!last && grid[last.r]?.[last.c] === 'F' && !!prev && prev.r === last.r + 1 && prev.c === last.c
 })
 
 const steps = computed(() => Math.max(0, state.path.length - 1))
@@ -86,6 +87,8 @@ function isLast(r: number, c: number) {
 function handleCellClick(r: number, c: number) {
   if (!state.playerName.trim() || won.value) return
 
+  const destinationSymbol = grid[r]?.[c]
+
   if (state.path.length === 0) {
     if (r === START_CELL.r && c === START_CELL.c) {
       state.path.push({ r, c })
@@ -99,6 +102,17 @@ function handleCellClick(r: number, c: number) {
 
   const isAdjacent = Math.abs(last.r - r) + Math.abs(last.c - c) === 1
   if (!isAdjacent) return
+
+  if (destinationSymbol === 'F') {
+    if (last.r === r + 1 && last.c === c) {
+      state.path.push({ r, c })
+      state.message = ''
+      return
+    }
+
+    tempMessage('La bandera solo se alcanza entrando por debajo.')
+    return
+  }
 
   const prev = state.path[state.path.length - 2]
   const currentSymbol = grid[last.r]?.[last.c]
@@ -137,11 +151,7 @@ function startGame() {
     state.playerName = cleaned.slice(0, 24)
     state.path = [
       { r: 4, c: 3 },
-      { r: 4, c: 2 },
-      { r: 4, c: 1 },
-      { r: 3, c: 1 },
-      { r: 2, c: 1 },
-      { r: 2, c: 2 },
+      { r: 3, c: 3 },
       { r: 2, c: 3 },
     ]
     state.message = ''
@@ -199,6 +209,8 @@ watch(
               :key="`${rIdx}-${cIdx}`"
               class="cell"
               :class="{
+                'symbol-o': cell === 'O',
+                'symbol-x': cell === 'X',
                 'is-goal': cell === 'F',
                 active: isPath(rIdx, cIdx),
                 last: isLast(rIdx, cIdx),
@@ -339,6 +351,7 @@ watch(
   color: var(--text-secondary);
   font-family: var(--font-mono);
   font-weight: 800;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
 .cell.active {
@@ -353,12 +366,21 @@ watch(
   color: #f6d27c;
 }
 
+.cell.symbol-o {
+  box-shadow: inset 0 0 0 1px rgba(246, 210, 124, 0.45);
+}
+
 .symbol.cross {
   color: #7ed3ff;
 }
 
+.cell.symbol-x {
+  box-shadow: inset 0 0 0 1px rgba(126, 211, 255, 0.45);
+}
+
 .is-goal {
   background: rgba(43, 101, 52, 0.82);
+  box-shadow: inset 0 0 0 2px rgba(139, 230, 183, 0.95);
 }
 
 .symbol.flag {
