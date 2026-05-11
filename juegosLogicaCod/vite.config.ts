@@ -6,6 +6,10 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vite.dev/config/
 export default defineConfig({
+  // Añade esta sección de "server"
+  server: {
+    allowedHosts: true
+  },
   plugins: [
     vue(),
     vueDevTools(),
