@@ -1,317 +1,358 @@
 <script setup lang="ts">
 // @ts-nocheck
-import { computed, ref, reactive, watch } from 'vue';
+import { computed, ref, reactive, watch } from 'vue'
 
-const GRID_SIZE = 10;
-const DIRS = ['up', 'right', 'down', 'left'];
-const DIR_DELTA = { up: [0,-1], right: [1,0], down: [0,1], left: [-1,0] };
-const DIR_DEG = { up: 0, right: 90, down: 180, left: 270 };
+const GRID_SIZE = 10
+const DIRS = ['up', 'right', 'down', 'left']
+const DIR_DELTA = { up: [0, -1], right: [1, 0], down: [0, 1], left: [-1, 0] }
+const DIR_DEG = { up: 0, right: 90, down: 180, left: 270 }
 
 const LEVELS = [
   {
     robot: { x: 5, y: 5, dir: 'right' },
     path: (g) => {
-      for (let i = 2; i < 8; i++) g[5][i].color = 'blue';
-      for (let i = 2; i < 8; i++) g[i][5].color = 'blue';
-      g[5][5].color = 'green';
-      g[2][5].hasStar = true;
+      for (let i = 2; i < 8; i++) g[5][i].color = 'blue'
+      for (let i = 2; i < 8; i++) g[i][5].color = 'blue'
+      g[5][5].color = 'green'
+      g[2][5].hasStar = true
     },
-    stars: 1
+    stars: 1,
   },
   {
     robot: { x: 1, y: 8, dir: 'right' },
     path: (g) => {
-      for (let i = 1; i < 9; i++) g[8][i].color = 'blue';
-      for (let i = 4; i < 9; i++) g[4][i].color = 'blue';
-      for (let i = 4; i < 9; i++) g[i][4].color = 'blue';
-      g[8][1].color = 'green';
-      g[4][8].hasStar = true;
+      for (let i = 1; i < 9; i++) g[8][i].color = 'blue'
+      for (let i = 4; i < 9; i++) g[4][i].color = 'blue'
+      for (let i = 4; i < 9; i++) g[i][4].color = 'blue'
+      g[8][1].color = 'green'
+      g[4][8].hasStar = true
     },
-    stars: 1
+    stars: 1,
   },
   {
     robot: { x: 2, y: 2, dir: 'down' },
     path: (g) => {
-      for (let i = 2; i < 8; i++) g[2][i].color = 'blue';
-      for (let i = 2; i < 8; i++) g[7][i].color = 'blue';
-      for (let i = 2; i < 8; i++) g[i][2].color = 'blue';
-      g[7][2].color = 'red';
-      g[2][2].color = 'green';
-      g[7][7].hasStar = true;
+      for (let i = 2; i < 8; i++) g[2][i].color = 'blue'
+      for (let i = 2; i < 8; i++) g[7][i].color = 'blue'
+      for (let i = 2; i < 8; i++) g[i][2].color = 'blue'
+      g[7][2].color = 'red'
+      g[2][2].color = 'green'
+      g[7][7].hasStar = true
     },
-    stars: 1
+    stars: 1,
   },
   {
     robot: { x: 1, y: 1, dir: 'right' },
     path: (g) => {
-      for (let i = 1; i < 9; i++) g[1][i].color = 'blue';
-      for (let i = 1; i < 7; i++) g[i][8].color = 'red';
-      for (let i = 2; i < 9; i++) g[6][i].color = 'green';
-      for (let i = 2; i < 7; i++) g[i][2].color = 'blue';
-      for (let i = 2; i < 8; i++) g[3][i].color = 'red';
-      for (let i = 3; i < 6; i++) g[i][7].color = 'green';
-      g[1][1].color = 'green';
-      g[5][7].hasStar = true;
+      for (let i = 1; i < 9; i++) g[1][i].color = 'blue'
+      for (let i = 1; i < 7; i++) g[i][8].color = 'red'
+      for (let i = 2; i < 9; i++) g[6][i].color = 'green'
+      for (let i = 2; i < 7; i++) g[i][2].color = 'blue'
+      for (let i = 2; i < 8; i++) g[3][i].color = 'red'
+      for (let i = 3; i < 6; i++) g[i][7].color = 'green'
+      g[1][1].color = 'green'
+      g[5][7].hasStar = true
     },
-    stars: 1
+    stars: 1,
   },
   {
     robot: { x: 8, y: 8, dir: 'up' },
     path: (g) => {
-      for (let i = 2; i < 9; i++) g[i][8].color = 'blue';
-      for (let i = 4; i < 9; i++) g[2][i].color = 'red';
-      for (let i = 2; i < 7; i++) g[i][4].color = 'green';
-      for (let i = 4; i < 7; i++) g[6][i].color = 'blue';
-      g[7][6].color = 'red';
-      g[8][8].color = 'green';
-      g[7][6].hasStar = true;
+      for (let i = 2; i < 9; i++) g[i][8].color = 'blue'
+      for (let i = 4; i < 9; i++) g[2][i].color = 'red'
+      for (let i = 2; i < 7; i++) g[i][4].color = 'green'
+      for (let i = 4; i < 7; i++) g[6][i].color = 'blue'
+      g[7][6].color = 'red'
+      g[8][8].color = 'green'
+      g[7][6].hasStar = true
     },
-    stars: 1
-  }
-];
+    stars: 1,
+  },
+]
 
-const currentLevel = ref(0);
-const puzzleSolved = computed(() => message.value.includes('RESUELTO'));
-const nameInput = ref('');
-const playerName = ref('');
-const scoreSaved = ref(false);
-const totalScore = ref(0);
+const currentLevel = ref(0)
+const puzzleSolved = computed(() => message.value.includes('RESUELTO'))
+const nameInput = ref('')
+const playerName = ref('')
+const scoreSaved = ref(false)
+const totalScore = ref(0)
 
 type RankingEntry = {
-  name: string;
-  score: number;
-  date: string;
-};
+  name: string
+  score: number
+  date: string
+  phaseScores?: number[]
+}
 
-const RANKING_KEY = 'ships-top10';
+const RANKING_KEY = 'ships-top10'
 
 function loadRanking(): RankingEntry[] {
-  if (typeof window === 'undefined') return [];
+  if (typeof window === 'undefined') return []
   try {
-    const raw = window.localStorage.getItem(RANKING_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as RankingEntry[];
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter((entry) => typeof entry.name === 'string' && typeof entry.score === 'number');
+    const raw = window.localStorage.getItem(RANKING_KEY)
+    if (!raw) return []
+    const parsed = JSON.parse(raw) as RankingEntry[]
+    if (!Array.isArray(parsed)) return []
+    return parsed.filter(
+      (entry) => typeof entry.name === 'string' && typeof entry.score === 'number',
+    )
   } catch {
-    return [];
+    return []
   }
 }
 
 function saveRanking(entries: RankingEntry[]) {
-  if (typeof window === 'undefined') return;
-  window.localStorage.setItem(RANKING_KEY, JSON.stringify(entries));
+  if (typeof window === 'undefined') return
+  window.localStorage.setItem(RANKING_KEY, JSON.stringify(entries))
 }
 
-const ranking = ref<RankingEntry[]>(loadRanking());
-const rankingTop10 = computed(() => ranking.value);
+const ranking = ref<RankingEntry[]>(loadRanking())
+const rankingTop10 = computed(() => ranking.value)
 
+// Cuenta solo slots que tienen comando (las condiciones solas no puntúan)
 const usedSlotsScore = computed(() =>
   ['f0', 'f1', 'f2'].reduce((total, funcName) => {
-    return total + programs[funcName].filter((slot) => slot.cmd || slot.cond).length;
-  }, 0)
-);
+    return total + programs[funcName].filter((slot) => slot.cmd !== null).length
+  }, 0),
+)
+
+const phaseScores = ref<number[]>([])
 
 const createGrid = () =>
   Array.from({ length: GRID_SIZE }, () =>
-    Array.from({ length: GRID_SIZE }, () => ({ color: 'white', hasStar: false }))
-  );
+    Array.from({ length: GRID_SIZE }, () => ({ color: 'white', hasStar: false })),
+  )
 
 const applyLevel = (targetGrid, lvl) => {
-  LEVELS[lvl].path(targetGrid);
-};
+  LEVELS[lvl].path(targetGrid)
+}
 
-const grid = reactive(createGrid());
-const robot = reactive({ ...LEVELS[0].robot });
-const isRunning = ref(false);
-const message = ref('Diseña tu algoritmo y pulsa Ejecutar');
-const starsCollected = ref(0);
-const executionLog = reactive([]);
+const grid = reactive(createGrid())
+const robot = reactive({ ...LEVELS[0].robot })
+const isRunning = ref(false)
+const message = ref('Diseña tu algoritmo y pulsa Ejecutar')
+const starsCollected = ref(0)
+const executionLog = reactive([])
+
+// Función activa visible en el log
+const activeFunc = ref('f0')
 
 const loadLevel = (lvl, nextMessage = 'Diseña tu algoritmo y pulsa Ejecutar') => {
-  currentLevel.value = lvl;
-  const fresh = createGrid();
-  applyLevel(fresh, lvl);
+  currentLevel.value = lvl
+  const fresh = createGrid()
+  applyLevel(fresh, lvl)
 
   for (let y = 0; y < GRID_SIZE; y++) {
     for (let x = 0; x < GRID_SIZE; x++) {
-      Object.assign(grid[y][x], fresh[y][x]);
+      Object.assign(grid[y][x], fresh[y][x])
     }
   }
 
-  Object.assign(robot, LEVELS[lvl].robot);
-  starsCollected.value = 0;
-  executionLog.splice(0);
-  message.value = nextMessage;
-};
+  Object.assign(robot, LEVELS[lvl].robot)
+  starsCollected.value = 0
+  executionLog.splice(0)
+  activeFunc.value = 'f0'
+  message.value = nextMessage
+}
 
 const restartCurrentLevel = (reason) => {
-  loadLevel(currentLevel.value, reason);
-};
+  loadLevel(currentLevel.value, reason)
+}
 
-loadLevel(0);
+// Captura el score ANTES de limpiar el programa
+const registerPhaseScore = () => {
+  const phaseScore = usedSlotsScore.value
+  phaseScores.value = [...phaseScores.value, phaseScore]
+  totalScore.value = phaseScores.value.reduce((sum, value) => sum + value, 0)
+}
 
-const FUNC_SLOTS = 8;
+loadLevel(0)
+
+const FUNC_SLOTS = 8
 const programs = reactive({
   f0: Array.from({ length: FUNC_SLOTS }, () => ({ cmd: null, cond: null })),
   f1: Array.from({ length: FUNC_SLOTS }, () => ({ cmd: null, cond: null })),
   f2: Array.from({ length: FUNC_SLOTS }, () => ({ cmd: null, cond: null })),
-});
+})
 
-const activeSlot = reactive({ func: 'f0', index: 0 });
-const dragCmd = ref(null);
-const dragCond = ref(null);
+const activeSlot = reactive({ func: 'f0', index: 0 })
+const dragCmd = ref(null)
+const dragCond = ref(null)
 
 // ── DRAG & DROP ──────────────────────────────────────────────
-const onDragStartCmd = (cmd) => { dragCmd.value = cmd; dragCond.value = null; };
-const onDragStartCond = (color) => { dragCond.value = color; dragCmd.value = null; };
+const onDragStartCmd = (cmd) => {
+  dragCmd.value = cmd
+  dragCond.value = null
+}
+const onDragStartCond = (color) => {
+  dragCond.value = color
+  dragCmd.value = null
+}
 
 const onDropSlot = (fName, i) => {
   if (dragCmd.value) {
-    programs[fName][i].cmd = dragCmd.value;
+    programs[fName][i].cmd = dragCmd.value
   } else if (dragCond.value) {
-    programs[fName][i].cond =
-      programs[fName][i].cond === dragCond.value ? null : dragCond.value;
+    programs[fName][i].cond = programs[fName][i].cond === dragCond.value ? null : dragCond.value
   }
-  dragCmd.value = null;
-  dragCond.value = null;
-};
+  dragCmd.value = null
+  dragCond.value = null
+}
 
 // ── CLICK en paleta ──────────────────────────────────────────
-const selectSlot = (f, i) => { activeSlot.func = f; activeSlot.index = i; };
+const selectSlot = (f, i) => {
+  activeSlot.func = f
+  activeSlot.index = i
+}
 
 const setCommand = (cmd) => {
-  programs[activeSlot.func][activeSlot.index].cmd = cmd;
-  // avanzar al siguiente slot
-  const next = activeSlot.index + 1;
-  if (next < FUNC_SLOTS) activeSlot.index = next;
-};
+  programs[activeSlot.func][activeSlot.index].cmd = cmd
+  const next = activeSlot.index + 1
+  if (next < FUNC_SLOTS) activeSlot.index = next
+}
 
 const toggleCond = (color) => {
-  const slot = programs[activeSlot.func][activeSlot.index];
-  slot.cond = slot.cond === color ? null : color;
-};
+  const slot = programs[activeSlot.func][activeSlot.index]
+  slot.cond = slot.cond === color ? null : color
+}
 
 const clearSlot = (fName, i) => {
-  programs[fName][i].cmd = null;
-  programs[fName][i].cond = null;
-};
+  programs[fName][i].cmd = null
+  programs[fName][i].cond = null
+}
 
 // ── EJECUCIÓN ────────────────────────────────────────────────
-const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
-const SPEED = 350;
+const SPEED = 350
 
 async function run() {
-  if (isRunning.value) return;
-  isRunning.value = true;
-  message.value = 'Ejecutando...';
-  executionLog.splice(0);
+  if (isRunning.value) return
+  isRunning.value = true
+  message.value = 'Ejecutando...'
+  executionLog.splice(0)
+  activeFunc.value = 'f0'
 
-  let steps = 0;
-  const MAX_STEPS = 1000;
+  let steps = 0
+  const MAX_STEPS = 1000
 
   const execute = async (funcName, depth = 0) => {
-    if (depth > 20) return; // evitar stackoverflow real
-    const program = programs[funcName];
+    if (depth > 20) return
+    activeFunc.value = funcName
+    const program = programs[funcName]
 
     for (let i = 0; i < program.length; i++) {
-      if (!isRunning.value || steps > MAX_STEPS) return;
-      const { cmd, cond } = program[i];
-      if (!cmd) continue;
+      if (!isRunning.value || steps > MAX_STEPS) return
+      const { cmd, cond } = program[i]
+      if (!cmd) continue
 
-      const cell = grid[robot.y][robot.x];
-      if (cond && cell.color !== cond) continue;
+      const cell = grid[robot.y][robot.x]
+      if (cond && cell.color !== cond) continue
 
-      steps++;
-      executionLog.unshift(`${funcName}[${i}]: ${cmd}${cond ? ' (' + cond + ')' : ''}`);
-      if (executionLog.length > 12) executionLog.pop();
+      steps++
+
+      // Log con función activa destacada
+      const condLabel = cond ? ` (${cond})` : ''
+      executionLog.unshift(`${funcName}[${i}]: ${cmd}${condLabel}`)
+      if (executionLog.length > 12) executionLog.pop()
 
       if (cmd === 'move') {
-        const [dx, dy] = DIR_DELTA[robot.dir];
-        const nx = robot.x + dx;
-        const ny = robot.y + dy;
+        const [dx, dy] = DIR_DELTA[robot.dir]
+        const nx = robot.x + dx
+        const ny = robot.y + dy
         if (nx < 0 || nx >= GRID_SIZE || ny < 0 || ny >= GRID_SIZE) {
-          isRunning.value = false;
-          restartCurrentLevel('💥 ¡Fuera del mapa! Reiniciando fase...');
-          return;
+          isRunning.value = false
+          restartCurrentLevel('💥 ¡Fuera del mapa! Reiniciando fase...')
+          return
         }
-        robot.x = nx;
-        robot.y = ny;
+        // Mover primero y comprobar si la celda destino forma parte del camino
+        const newCell = grid[ny][nx]
+        // Consideramos que las casillas sin color (white) están fuera del camino
+        if (!newCell.color || newCell.color === 'white') {
+          isRunning.value = false
+          restartCurrentLevel('💥 ¡Fuera del camino! Reiniciando fase...')
+          return
+        }
+        robot.x = nx
+        robot.y = ny
       } else if (cmd === 'left') {
-        const idx = DIRS.indexOf(robot.dir);
-        robot.dir = DIRS[(idx + 3) % 4];
+        const idx = DIRS.indexOf(robot.dir)
+        robot.dir = DIRS[(idx + 3) % 4]
       } else if (cmd === 'right') {
-        const idx = DIRS.indexOf(robot.dir);
-        robot.dir = DIRS[(idx + 1) % 4];
+        const idx = DIRS.indexOf(robot.dir)
+        robot.dir = DIRS[(idx + 1) % 4]
       } else if (['f0', 'f1', 'f2'].includes(cmd)) {
-        await execute(cmd, depth + 1);
-        if (!isRunning.value) return;
+        await execute(cmd, depth + 1)
+        // Al volver de la subfunción, restauramos el contexto
+        activeFunc.value = funcName
+        if (!isRunning.value) return
       }
 
       if (grid[robot.y][robot.x].hasStar) {
-        grid[robot.y][robot.x].hasStar = false;
-        starsCollected.value++;
+        grid[robot.y][robot.x].hasStar = false
+        starsCollected.value++
         if (starsCollected.value >= LEVELS[currentLevel.value].stars) {
-          totalScore.value += usedSlotsScore.value;
-          const nextLevel = currentLevel.value + 1;
+          // 1. Capturar score ANTES de limpiar
+          registerPhaseScore()
+          const nextLevel = currentLevel.value + 1
           if (nextLevel < LEVELS.length) {
-            isRunning.value = false;
-            loadLevel(nextLevel, `Fase ${currentLevel.value + 1} completada. Fase ${nextLevel + 1} lista.`);
-            return;
+            isRunning.value = false
+            // 2. Limpiar programa para que la siguiente fase puntúe desde 0
+            clearAll()
+            loadLevel(
+              nextLevel,
+              `✅ Fase ${currentLevel.value + 1} completada. Fase ${nextLevel + 1} lista.`,
+            )
+            return
           }
 
-          message.value = '⭐ ¡PUZZLE RESUELTO! ⭐';
-          isRunning.value = false;
-          return;
+          message.value = '⭐ ¡PUZZLE RESUELTO! ⭐'
+          isRunning.value = false
+          return
         }
       }
 
-      await sleep(SPEED);
+      await sleep(SPEED)
     }
-  };
-
-  await execute('f0');
-  if (!isRunning.value) {
-    return;
   }
+
+  await execute('f0')
+  if (!isRunning.value) return
 
   if (starsCollected.value < LEVELS[currentLevel.value].stars) {
-    isRunning.value = false;
-    restartCurrentLevel('No llegaste a la estrella. Reiniciando fase...');
-    return;
+    isRunning.value = false
+    restartCurrentLevel('No llegaste a la estrella. Reiniciando fase...')
+    return
   }
 
-  message.value = steps > MAX_STEPS ? '⚠ Demasiados pasos (bucle infinito)' : 'Programa terminado';
-  isRunning.value = false;
+  message.value = steps > MAX_STEPS ? '⚠ Demasiados pasos (bucle infinito)' : 'Programa terminado'
+  isRunning.value = false
 }
 
-const stopExecution = () => { isRunning.value = false; message.value = 'Detenido'; };
-
-const reset = () => {
-  stopExecution();
-  loadLevel(currentLevel.value, 'Reiniciado');
-  scoreSaved.value = false;
-  totalScore.value = 0;
-};
+const stopExecution = () => {
+  isRunning.value = false
+  message.value = 'Detenido'
+}
 
 const clearAll = () => {
-  ['f0', 'f1', 'f2'].forEach(f =>
-    programs[f].forEach(s => { s.cmd = null; s.cond = null; })
-  );
-};
+  ;['f0', 'f1', 'f2'].forEach((f) =>
+    programs[f].forEach((s) => {
+      s.cmd = null
+      s.cond = null
+    }),
+  )
+}
 
 function startGame() {
-  const cleaned = nameInput.value.trim();
-  if (!cleaned) return;
-
-  playerName.value = cleaned.slice(0, 24);
-  nameInput.value = '';
-  message.value = 'Diseña tu algoritmo y pulsa Ejecutar';
+  const cleaned = nameInput.value.trim()
+  if (!cleaned) return
+  playerName.value = cleaned.slice(0, 24)
+  nameInput.value = ''
+  message.value = 'Diseña tu algoritmo y pulsa Ejecutar'
 }
 
 function saveScoreIfNeeded() {
-  if (!puzzleSolved.value || scoreSaved.value || !playerName.value.trim()) return;
+  if (!puzzleSolved.value || scoreSaved.value || !playerName.value.trim()) return
 
   const next = [
     ...ranking.value,
@@ -319,22 +360,23 @@ function saveScoreIfNeeded() {
       name: playerName.value,
       score: totalScore.value,
       date: new Date().toISOString(),
+      phaseScores: [...phaseScores.value],
     },
   ]
     .sort((a, b) => a.score - b.score || a.date.localeCompare(b.date))
-    .slice(0, 10);
+    .slice(0, 10)
 
-  ranking.value = next;
-  saveRanking(next);
-  scoreSaved.value = true;
+  ranking.value = next
+  saveRanking(next)
+  scoreSaved.value = true
 }
 
 watch(
   () => puzzleSolved.value,
   (isWon) => {
-    if (isWon) saveScoreIfNeeded();
-  }
-);
+    if (isWon) saveScoreIfNeeded()
+  },
+)
 
 // ── HELPERS DISPLAY ──────────────────────────────────────────
 const CMD_ICON = {
@@ -344,25 +386,36 @@ const CMD_ICON = {
   f0: 'f0',
   f1: 'f1',
   f2: 'f2',
-};
+}
 
-const COND_BG = { red: '#e74c3c', green: '#2ecc71', blue: '#3498db' };
+const COND_BG = { red: '#e74c3c', green: '#2ecc71', blue: '#3498db' }
+
+const FUNC_COLOR = { f0: '#ffffff', f1: '#ffffff', f2: '#ffffff' }
 
 const slotBg = (slot) => {
-  if (!slot.cmd) return '#2a2f3e';
-  if (slot.cond) return COND_BG[slot.cond];
-  return '#3d4560';
-};
+  if (!slot.cmd) return '#2a2f3e'
+  if (slot.cond) return COND_BG[slot.cond]
+  return '#3d4560'
+}
 
-const robotStyle = (x, y) => ({
+const robotStyle = () => ({
   transform: `rotate(${DIR_DEG[robot.dir]}deg)`,
-});
+})
 
+// Color del log según función
+const logColor = (line) => {
+  if (line.startsWith('f0')) return '#7eb8ff'
+  if (line.startsWith('f1')) return '#ffb347'
+  if (line.startsWith('f2')) return '#b47eff'
+  return '#8af'
+}
 </script>
 
 <template>
   <div class="puzzle-panel">
-    <div class="player-name" v-if="playerName">Jugador: <b>{{ playerName }}</b></div>
+    <div class="player-name" v-if="playerName">
+      Jugador: <b>{{ playerName }}</b>
+    </div>
 
     <div class="puz-header">
       <div>
@@ -372,6 +425,7 @@ const robotStyle = (x, y) => ({
       <div class="puz-meta">
         <span class="meta-pill">Fase {{ currentLevel + 1 }} / {{ LEVELS.length }}</span>
         <span class="meta-pill accent">⭐ {{ starsCollected }} / {{ LEVELS[currentLevel].stars }}</span>
+        <span class="meta-pill score">Σ {{ totalScore }} pts</span>
       </div>
     </div>
 
@@ -382,31 +436,37 @@ const robotStyle = (x, y) => ({
 
     <div v-if="!puzzleSolved" class="game-area" :class="{ 'is-shaking': message.includes('💥') }">
       <div class="ships-scene">
+
+        <!-- PALETA -->
         <aside class="panel-card palette-panel">
           <div class="section-title">Comandos</div>
           <div class="cmd-group">
             <button
-              v-for="cmd in ['left','move','right']" :key="cmd"
+              v-for="cmd in ['left', 'move', 'right']"
+              :key="cmd"
               class="btn-cmd"
               draggable="true"
               @dragstart="onDragStartCmd(cmd)"
               @click="setCommand(cmd)"
             >{{ CMD_ICON[cmd] }}</button>
           </div>
-          <div class="cmd-group" style="margin-top:6px">
+          <div class="cmd-group" style="margin-top: 6px">
             <button
-              v-for="fn in ['f0','f1','f2']" :key="fn"
+              v-for="fn in ['f0', 'f1', 'f2']"
+              :key="fn"
               class="btn-fn"
+              :style="{ borderColor: FUNC_COLOR[fn] + '88', color: FUNC_COLOR[fn] }"
               draggable="true"
               @dragstart="onDragStartCmd(fn)"
               @click="setCommand(fn)"
             >{{ fn }}</button>
           </div>
 
-          <div class="section-title" style="margin-top:14px">Condición</div>
+          <div class="section-title" style="margin-top: 14px">Condición</div>
           <div class="cond-group">
             <button
-              v-for="c in ['red','green','blue']" :key="c"
+              v-for="c in ['red', 'green', 'blue']"
+              :key="c"
               class="btn-cond"
               :style="{ background: COND_BG[c] }"
               draggable="true"
@@ -415,28 +475,25 @@ const robotStyle = (x, y) => ({
             ></button>
           </div>
 
-          <button class="btn-clear" style="margin-top:14px" @click="clearAll">🗑 Limpiar</button>
+          <button class="btn-clear" style="margin-top: 14px" @click="clearAll">🗑 Limpiar</button>
         </aside>
 
+        <!-- TABLERO -->
         <section class="panel-card board-panel">
-          <div class="board-message" :class="{ solved: message.includes('RESUELTO'), error: message.includes('💥') }">
-            {{ message }}
-          </div>
+          <div
+            class="board-message"
+            :class="{ solved: message.includes('RESUELTO'), error: message.includes('💥') }"
+          >{{ message }}</div>
 
           <div class="grid">
             <div v-for="(row, y) in grid" :key="y" class="row">
-              <div
-                v-for="(cell, x) in row"
-                :key="x"
-                class="cell"
-                :class="[cell.color]"
-              >
+              <div v-for="(cell, x) in row" :key="x" class="cell" :class="[cell.color]">
                 <img
                   v-if="robot.x === x && robot.y === y"
                   class="ship-image"
                   src="/images/nave.webp"
                   alt="Nave"
-                  :style="robotStyle(x, y)"
+                  :style="robotStyle()"
                 />
                 <span v-else-if="cell.hasStar" class="star">⭐</span>
               </div>
@@ -446,22 +503,29 @@ const robotStyle = (x, y) => ({
           <div class="controls">
             <button class="btn-run" @click="run" :disabled="isRunning">▶ Ejecutar</button>
             <button class="btn-stop" @click="stopExecution" :disabled="!isRunning">⏹ Parar</button>
-            <button class="btn-reset" @click="reset">🔄 Reiniciar</button>
           </div>
 
+          <!-- LOG con colores por función -->
           <div class="log" v-if="executionLog.length">
-            <div v-for="(line, i) in executionLog" :key="i" class="log-line" :style="{ opacity: 1 - i*0.07 }">{{ line }}</div>
+            <div
+              v-for="(line, i) in executionLog"
+              :key="i"
+              class="log-line"
+              :style="{ opacity: 1 - i * 0.07, color: logColor(line) }"
+            >{{ line }}</div>
           </div>
         </section>
 
+        <!-- EDITOR -->
         <aside class="panel-card editor-panel">
           <div class="section-title">Funciones</div>
           <div
-            v-for="fName in ['f0','f1','f2']"
+            v-for="fName in ['f0', 'f1', 'f2']"
             :key="fName"
             class="func-row"
+            :class="{ 'func-active': isRunning && activeFunc === fName }"
           >
-            <span class="func-label">{{ fName }}</span>
+            <span class="func-label" :style="{ color: FUNC_COLOR[fName] }">{{ fName }}</span>
             <div class="slots">
               <div
                 v-for="(slot, i) in programs[fName]"
@@ -474,42 +538,94 @@ const robotStyle = (x, y) => ({
                 @dragover.prevent
                 @drop="onDropSlot(fName, i)"
               >
-                <span v-if="slot.cmd" class="slot-icon">{{ CMD_ICON[slot.cmd] }}</span>
+                <span
+                  v-if="slot.cmd"
+                  class="slot-icon"
+                  :style="{ color: ['f0','f1','f2'].includes(slot.cmd) ? FUNC_COLOR[slot.cmd] : '#eee' }"
+                >{{ CMD_ICON[slot.cmd] }}</span>
               </div>
             </div>
           </div>
 
-          <div class="section-title note" style="margin-top:16px">
+          <div class="section-title note" style="margin-top: 16px">
             Click = seleccionar · Doble click = borrar slot · Drag & drop disponible
           </div>
 
-          <div class="section-title" style="margin-top:16px">Ejecución</div>
+          <!-- Indicador función activa -->
+          <div class="section-title" style="margin-top: 16px">
+            Ejecutando:
+            <span
+              v-if="isRunning"
+              class="active-fn-badge"
+              :style="{ background: FUNC_COLOR[activeFunc] + '33', color: FUNC_COLOR[activeFunc], borderColor: FUNC_COLOR[activeFunc] + '88' }"
+            >{{ activeFunc }}</span>
+            <span v-else class="active-fn-badge muted">—</span>
+          </div>
+
+          <div class="section-title" style="margin-top: 10px">Vista f0</div>
           <div class="exec-bar">
             <div
               v-for="(slot, i) in programs.f0"
               :key="i"
               class="exec-slot"
-              :style="{ background: slot.cmd ? (slot.cond ? COND_BG[slot.cond] : '#3d4560') : '#1e2230' }"
+              :style="{
+                background: slot.cmd ? (slot.cond ? COND_BG[slot.cond] : '#3d4560') : '#1e2230',
+              }"
             >
-              <span v-if="slot.cmd" class="exec-icon">{{ CMD_ICON[slot.cmd] }}</span>
+              <span
+                v-if="slot.cmd"
+                class="exec-icon"
+                :style="{ color: ['f0','f1','f2'].includes(slot.cmd) ? FUNC_COLOR[slot.cmd] : '#eee' }"
+              >{{ CMD_ICON[slot.cmd] }}</span>
             </div>
           </div>
+
+          <!-- Puntuación por fase -->
+          <div class="section-title" style="margin-top: 16px">Puntuación por fase</div>
+          <div class="phase-scores">
+            <div
+              v-for="(ps, i) in phaseScores"
+              :key="i"
+              class="phase-score-item"
+            >
+              <span class="phase-label">Fase {{ i + 1 }}</span>
+              <span class="phase-val">{{ ps }} cmds</span>
+            </div>
+            <div v-if="phaseScores.length" class="phase-score-item total-row">
+              <span class="phase-label">Total</span>
+              <span class="phase-val accent">{{ totalScore }}</span>
+            </div>
+            <div v-else class="phase-empty">Sin fases completadas</div>
+          </div>
         </aside>
+
       </div>
     </div>
 
+    <!-- PANTALLA DE VICTORIA -->
     <div v-else class="win-modal-overlay">
       <div class="success-msg">
-        <h3>Puzzle resuelto</h3>
-        <p>Has completado las {{ LEVELS.length }} fases en {{ totalScore }} puntos.</p>
-        <button class="btn-primary" @click="reset">Jugar de nuevo</button>
+        <h3>⭐ Puzzle resuelto</h3>
+        <p>Has completado las {{ LEVELS.length }} fases usando <b>{{ totalScore }} comandos</b> en total.</p>
+
+        <div class="phase-breakdown">
+          <div v-for="(ps, i) in phaseScores" :key="i" class="breakdown-row">
+            <span>Fase {{ i + 1 }}</span><b>{{ ps }} cmds</b>
+          </div>
+        </div>
+
+        
 
         <div class="ranking-card">
-          <div class="ranking-title">Top 10</div>
+          <div class="ranking-title">🏆 Top 10</div>
           <ol v-if="rankingTop10.length > 0" class="ranking-list">
-            <li v-for="(entry, idx) in rankingTop10" :key="`${entry.name}-${entry.date}-${idx}`" class="ranking-item">
+            <li
+              v-for="(entry, idx) in rankingTop10"
+              :key="`${entry.name}-${entry.date}-${idx}`"
+              class="ranking-item"
+            >
               <span>{{ entry.name }}</span>
-              <b>{{ entry.score }} puntos</b>
+              <b>{{ entry.score }} pts</b>
             </li>
           </ol>
           <div v-else class="ranking-empty">Sin partidas registradas.</div>
@@ -517,6 +633,7 @@ const robotStyle = (x, y) => ({
       </div>
     </div>
 
+    <!-- MODAL NOMBRE -->
     <div class="name-modal-overlay" v-if="!playerName">
       <div class="name-modal">
         <h3>Antes de empezar</h3>
@@ -588,8 +705,7 @@ const robotStyle = (x, y) => ({
   justify-content: flex-end;
 }
 
-.meta-pill,
-.board-pill {
+.meta-pill {
   padding: 0.35rem 0.72rem;
   border-radius: 999px;
   background: rgba(85, 204, 255, 0.14);
@@ -599,10 +715,8 @@ const robotStyle = (x, y) => ({
   font-size: 0.76rem;
 }
 
-.meta-pill.accent,
-.board-pill.accent {
-  color: var(--accent-primary);
-}
+.meta-pill.accent { color: var(--accent-primary); }
+.meta-pill.score { color: #ffb347; border-color: rgba(255, 179, 71, 0.35); background: rgba(255, 179, 71, 0.1); }
 
 .puz-desc {
   background: rgba(15, 36, 59, 0.56);
@@ -613,9 +727,7 @@ const robotStyle = (x, y) => ({
   color: var(--text-secondary);
 }
 
-.puz-desc p + p {
-  margin-top: 0.35rem;
-}
+.puz-desc p + p { margin-top: 0.35rem; }
 
 .player-name {
   text-align: right;
@@ -625,9 +737,7 @@ const robotStyle = (x, y) => ({
   font-family: var(--font-mono);
 }
 
-.game-area {
-  position: relative;
-}
+.game-area { position: relative; }
 
 .ships-scene {
   display: grid;
@@ -644,10 +754,7 @@ const robotStyle = (x, y) => ({
   backdrop-filter: blur(10px);
 }
 
-.palette-panel,
-.editor-panel {
-  padding: 0.9rem 0.85rem;
-}
+.palette-panel, .editor-panel { padding: 0.9rem 0.85rem; }
 
 .board-panel {
   padding: 0.9rem;
@@ -665,13 +772,8 @@ const robotStyle = (x, y) => ({
   color: var(--ranking-title);
 }
 
-.board-message.solved {
-  color: var(--state-success);
-}
-
-.board-message.error {
-  color: var(--state-error);
-}
+.board-message.solved { color: var(--state-success); }
+.board-message.error { color: var(--state-error); }
 
 .section-title {
   font-size: 10px;
@@ -681,25 +783,12 @@ const robotStyle = (x, y) => ({
   margin-bottom: 6px;
 }
 
-.section-title.note {
-  font-size: 10px;
-  color: #7f94aa;
-  line-height: 1.35;
-}
+.section-title.note { font-size: 10px; color: #7f94aa; line-height: 1.35; }
 
-.cmd-group {
-  display: flex;
-  gap: 4px;
-}
+.cmd-group { display: flex; gap: 4px; }
 
-.btn-cmd,
-.btn-fn,
-.btn-cond,
-.btn-clear,
-.btn-run,
-.btn-stop,
-.btn-reset,
-.btn-primary {
+.btn-cmd, .btn-fn, .btn-cond, .btn-clear,
+.btn-run, .btn-stop, .btn-reset, .btn-primary {
   border-radius: 10px;
   transition: transform 0.15s ease, filter 0.15s ease, background 0.15s ease, border-color 0.15s ease;
 }
@@ -717,14 +806,9 @@ const robotStyle = (x, y) => ({
   justify-content: center;
 }
 
-.btn-cmd:hover,
-.btn-fn:hover,
-.btn-cond:hover,
-.btn-run:not(:disabled):hover,
-.btn-stop:not(:disabled):hover,
-.btn-reset:hover,
-.btn-clear:hover,
-.btn-primary:hover {
+.btn-cmd:hover, .btn-fn:hover, .btn-cond:hover,
+.btn-run:not(:disabled):hover, .btn-stop:not(:disabled):hover,
+.btn-reset:hover, .btn-clear:hover, .btn-primary:hover {
   transform: translateY(-1px);
 }
 
@@ -739,18 +823,9 @@ const robotStyle = (x, y) => ({
   font-weight: 700;
 }
 
-.cond-group {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
+.cond-group { display: flex; flex-direction: column; gap: 5px; }
 
-.btn-cond {
-  width: 36px;
-  height: 22px;
-  border: none;
-  cursor: pointer;
-}
+.btn-cond { width: 36px; height: 22px; border: none; cursor: pointer; }
 
 .btn-clear {
   width: 100%;
@@ -769,9 +844,7 @@ const robotStyle = (x, y) => ({
   box-shadow: 0 0 0 1px rgba(8, 16, 29, 0.2);
 }
 
-.row {
-  display: flex;
-}
+.row { display: flex; }
 
 .cell {
   width: 36px;
@@ -785,32 +858,18 @@ const robotStyle = (x, y) => ({
   transition: background 0.2s;
 }
 
-.cell.blue {
-  background: #1a3a5c;
-  border-color: #1e4a72;
-}
+.cell.blue { background: #1a3a5c; border-color: #1e4a72; }
+.cell.green { background: #1a5c2a; border-color: #2ecc71; }
+.cell.red { background: #5c1a1a; border-color: #e74c3c; }
 
-.cell.green {
-  background: #1a5c2a;
-  border-color: #2ecc71;
-}
-
-.cell.red {
-  background: #5c1a1a;
-  border-color: #e74c3c;
-}
-
-.star {
-  font-size: 16px;
-  animation: pulse 1.5s infinite;
-}
+.star { font-size: 16px; animation: pulse 1.5s infinite; }
 
 .ship-image {
   width: 52px;
   height: 52px;
   object-fit: contain;
   display: block;
-  filter: drop-shadow(0 0 2px rgba(0,0,0,0.5));
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
   transform-origin: center center;
   transition: transform 0.2s ease;
   position: relative;
@@ -852,11 +911,7 @@ const robotStyle = (x, y) => ({
   font-size: 0.85rem;
 }
 
-.btn-run:disabled,
-.btn-stop:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
+.btn-run:disabled, .btn-stop:disabled { opacity: 0.45; cursor: not-allowed; }
 
 .log {
   background: rgba(9, 15, 27, 0.72);
@@ -869,29 +924,33 @@ const robotStyle = (x, y) => ({
 .log-line {
   font-size: 11px;
   font-family: var(--font-mono);
-  color: #8af;
   padding: 1px 0;
 }
 
+/* Fila de función activa durante ejecución */
 .func-row {
   display: flex;
   align-items: center;
   gap: 6px;
   margin-bottom: 8px;
+  padding: 3px 4px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.func-row.func-active {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
 .func-label {
   font-size: 12px;
   font-weight: 700;
-  color: #aaf;
   width: 22px;
 }
 
-.slots {
-  display: flex;
-  gap: 3px;
-  flex-wrap: wrap;
-}
+.slots { display: flex; gap: 3px; flex-wrap: wrap; }
 
 .slot {
   width: 26px;
@@ -905,27 +964,35 @@ const robotStyle = (x, y) => ({
   transition: border-color 0.15s, background 0.15s;
 }
 
-.slot:hover {
-  border-color: #88aaff;
-}
+.slot:hover { border-color: #88aaff; }
 
 .slot.active {
   border: 2px solid #3498db;
   box-shadow: 0 0 6px #3498db66;
 }
 
-.slot-icon,
-.exec-icon {
-  font-size: 13px;
-  color: #eee;
-  line-height: 1;
+.slot-icon, .exec-icon { font-size: 13px; line-height: 1; }
+
+/* Badge función activa */
+.active-fn-badge {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  border: 1px solid transparent;
+  margin-left: 4px;
+  transition: all 0.2s;
 }
 
-.exec-bar {
-  display: flex;
-  gap: 3px;
-  flex-wrap: wrap;
+.active-fn-badge.muted {
+  background: rgba(255,255,255,0.05);
+  color: #556;
+  border-color: #334;
 }
+
+.exec-bar { display: flex; gap: 3px; flex-wrap: wrap; }
 
 .exec-slot {
   width: 24px;
@@ -936,9 +1003,36 @@ const robotStyle = (x, y) => ({
   align-items: center;
   justify-content: center;
   font-size: 11px;
-  color: #eee;
 }
 
+/* Puntuación por fase */
+.phase-scores {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.phase-score-item {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-secondary);
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.phase-score-item.total-row {
+  border-top: 1px solid rgba(255,255,255,0.1);
+  margin-top: 2px;
+  padding-top: 4px;
+  font-weight: 700;
+}
+
+.phase-val.accent { color: #ffb347; }
+.phase-empty { font-size: 10px; color: #556; font-family: var(--font-mono); }
+
+/* Victoria */
 .win-modal-overlay {
   position: absolute;
   inset: 0;
@@ -953,8 +1047,8 @@ const robotStyle = (x, y) => ({
 }
 
 .success-msg {
-  width: min(92vw, 440px);
-  padding: 1.1rem 1rem;
+  width: min(92vw, 460px);
+  padding: 1.3rem 1.1rem;
   border-radius: var(--radius-md);
   color: var(--text-primary);
   background: linear-gradient(135deg, rgba(16, 39, 64, 0.9), rgba(10, 23, 42, 0.96));
@@ -963,15 +1057,28 @@ const robotStyle = (x, y) => ({
   text-align: center;
 }
 
-.success-msg h3 {
-  margin: 0;
-  color: #8be6b7;
+.success-msg h3 { margin: 0; color: #8be6b7; }
+.success-msg p { margin: 0.4rem 0 0.6rem; color: var(--text-secondary); }
+
+.phase-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  margin-top: 0.5rem;
 }
 
-.success-msg p {
-  margin: 0.4rem 0 0.85rem;
+.breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
   color: var(--text-secondary);
 }
+
+.breakdown-row b { color: #7eb8ff; }
 
 .ranking-card {
   margin-top: 0.85rem;
@@ -982,11 +1089,7 @@ const robotStyle = (x, y) => ({
   text-align: left;
 }
 
-.ranking-title {
-  font-size: 0.86rem;
-  font-weight: 700;
-  color: var(--ranking-title);
-}
+.ranking-title { font-size: 0.86rem; font-weight: 700; color: var(--ranking-title); }
 
 .ranking-list {
   margin: 0.35rem 0 0;
@@ -1004,21 +1107,11 @@ const robotStyle = (x, y) => ({
   border-radius: 6px;
 }
 
-.ranking-item:nth-child(odd) {
-  background: rgba(255, 255, 255, 0.05);
-}
+.ranking-item:nth-child(odd) { background: rgba(255, 255, 255, 0.05); }
+.ranking-item b { color: var(--ranking-score); }
+.ranking-empty { margin-top: 0.35rem; font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); }
 
-.ranking-item b {
-  color: var(--ranking-score);
-}
-
-.ranking-empty {
-  margin-top: 0.35rem;
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
-
+/* Modal nombre */
 .name-modal-overlay {
   position: absolute;
   inset: 0;
@@ -1041,22 +1134,10 @@ const robotStyle = (x, y) => ({
   text-align: center;
 }
 
-.name-modal h3 {
-  margin: 0;
-  font-size: 1rem;
-}
+.name-modal h3 { margin: 0; font-size: 1rem; }
+.name-modal p { margin: 0.3rem 0 0.8rem; color: var(--text-secondary); font-size: 0.86rem; }
 
-.name-modal p {
-  margin: 0.3rem 0 0.8rem;
-  color: var(--text-secondary);
-  font-size: 0.86rem;
-}
-
-.name-modal-row {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: center;
-}
+.name-modal-row { display: flex; gap: 0.5rem; justify-content: center; }
 
 .player-input {
   padding: 0.45rem 0.6rem;
@@ -1068,9 +1149,7 @@ const robotStyle = (x, y) => ({
   color: var(--text-primary);
 }
 
-.btn-sm {
-  font-size: 0.8rem;
-}
+.btn-sm { font-size: 0.8rem; }
 
 .btn-primary {
   padding: 0.6rem 1rem;
@@ -1081,9 +1160,7 @@ const robotStyle = (x, y) => ({
   font-weight: 700;
 }
 
-.is-shaking {
-  animation: shake 0.42s linear;
-}
+.is-shaking { animation: shake 0.42s linear; }
 
 @keyframes pulse {
   0%, 100% { transform: scale(1); }
@@ -1100,44 +1177,18 @@ const robotStyle = (x, y) => ({
 }
 
 @media (max-width: 980px) {
-  .ships-scene {
-    grid-template-columns: 1fr;
-  }
-
-  .palette-panel,
-  .editor-panel,
-  .board-panel {
-    width: 100%;
-  }
+  .ships-scene { grid-template-columns: 1fr; }
+  .palette-panel, .editor-panel, .board-panel { width: 100%; }
 }
 
 @media (max-width: 700px) {
-  .puz-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .puz-meta {
-    justify-content: flex-start;
-  }
-
-  .board-panel .controls {
-    width: 100%;
-  }
-
+  .puz-header { flex-direction: column; align-items: flex-start; }
+  .puz-meta { justify-content: flex-start; }
+  .board-panel .controls { width: 100%; }
   .board-panel .controls .btn-run,
   .board-panel .controls .btn-stop,
-  .board-panel .controls .btn-reset {
-    flex: 1 1 100%;
-  }
-
-  .name-modal-row {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .name-modal-row .player-input {
-    width: min(90%, 290px);
-  }
+  .board-panel .controls .btn-reset { flex: 1 1 100%; }
+  .name-modal-row { flex-direction: column; align-items: center; }
+  .name-modal-row .player-input { width: min(90%, 290px); }
 }
 </style>

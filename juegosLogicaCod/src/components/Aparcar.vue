@@ -194,8 +194,9 @@ watch(
     </div>
 
     <div class="puz-desc">
-      Traza una ruta desde el coche hasta la bandera siguiendo las reglas: en O sigues recto y en
-      X debes girar.
+      Traza una ruta desde el coche hasta la bandera respetando estas reglas: en una casilla
+      <strong>O</strong> debes seguir en línea recta; en una casilla <strong>X</strong> debes girar. Empieza
+      en el coche (entrada) y alcanza la bandera entrando por debajo.
     </div>
 
     <div class="player-name" v-if="state.playerName">Jugador: <b>{{ state.playerName }}</b></div>
@@ -214,6 +215,7 @@ watch(
                 'is-goal': cell === 'F',
                 active: isPath(rIdx, cIdx),
                 last: isLast(rIdx, cIdx),
+                'start-x': rIdx === START_CELL.r && cIdx === START_CELL.c,
               }"
               @click="handleCellClick(rIdx, cIdx)"
             >
@@ -352,6 +354,7 @@ watch(
   font-family: var(--font-mono);
   font-weight: 800;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  position: relative;
 }
 
 .cell.active {
@@ -381,6 +384,38 @@ watch(
 .is-goal {
   background: rgba(43, 101, 52, 0.82);
   box-shadow: inset 0 0 0 2px rgba(139, 230, 183, 0.95);
+}
+
+/* Línea roja arriba y líneas laterales internas para la casilla F */
+.cell.is-goal::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 4px;
+  background: #e74c3c;
+  pointer-events: none;
+}
+.cell.is-goal::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  box-sizing: border-box;
+  border-left: 4px solid #e74c3c;
+  border-right: 4px solid #e74c3c;
+  pointer-events: none;
+}
+
+/* Estilo para la X inicial (inicio) en rojo */
+.cell.start-x {
+  box-shadow: inset 0 0 0 2px #e74c3c;
+}
+.cell.start-x .symbol.cross {
+  color: #e74c3c;
 }
 
 .symbol.flag {
