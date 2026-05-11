@@ -501,7 +501,7 @@ const robotStyle = (x, y) => ({
     <div v-else class="win-modal-overlay">
       <div class="success-msg">
         <h3>Puzzle resuelto</h3>
-        <p>{{ message }}</p>
+        <p>Has completado las {{ LEVELS.length }} fases en {{ totalScore }} puntos.</p>
         <button class="btn-primary" @click="reset">Jugar de nuevo</button>
 
         <div class="ranking-card">
@@ -509,7 +509,7 @@ const robotStyle = (x, y) => ({
           <ol v-if="rankingTop10.length > 0" class="ranking-list">
             <li v-for="(entry, idx) in rankingTop10" :key="`${entry.name}-${entry.date}-${idx}`" class="ranking-item">
               <span>{{ entry.name }}</span>
-              <b>{{ entry.score }} elementos</b>
+              <b>{{ entry.score }} puntos</b>
             </li>
           </ol>
           <div v-else class="ranking-empty">Sin partidas registradas.</div>
