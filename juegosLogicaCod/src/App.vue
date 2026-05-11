@@ -3,10 +3,11 @@ import { computed, ref } from 'vue'
 import Aparcar from './components/Aparcar.vue'
 import LobosPuzzle from './components/LobosPuzzle.vue'
 import PuzzleSelector from './components/PuzzleSelector.vue'
+import Ships from './components/Ships.vue'
 import RojoAzulPuzzle from './components/RojoAzulPuzzle.vue'
 import TortitasPuzzle from './components/TortitasPuzzle.vue'
 
-type PuzzleId = 'lobos' | 'tortitas' | 'rojoyazul' | 'aparcar'
+type PuzzleId = 'lobos' | 'tortitas' | 'rojoyazul' | 'aparcar' | 'ships'
 
 const activePuzzle = ref<PuzzleId | null>(null)
 
@@ -15,6 +16,7 @@ const activeComponent = computed(() => {
   if (activePuzzle.value === 'tortitas') return TortitasPuzzle
   if (activePuzzle.value === 'rojoyazul') return RojoAzulPuzzle
   if (activePuzzle.value === 'aparcar') return Aparcar
+  if (activePuzzle.value === 'ships') return Ships
   return null
 })
 

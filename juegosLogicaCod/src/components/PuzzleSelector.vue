@@ -44,7 +44,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, ref } from 'vue'
 
-type PuzzleId = 'lobos' | 'tortitas' | 'rojoyazul' | 'aparcar'
+type PuzzleId = 'lobos' | 'tortitas' | 'rojoyazul' | 'aparcar' | 'ships'
 
 interface Puzzle {
   id: PuzzleId
@@ -59,7 +59,8 @@ const puzzles: Puzzle[] = [
   { id: 'lobos', number: 'N 001', title: 'Lobos y Pollitos', description: 'Lleva a todos los animales al otro lado del rio sin que los lobos superen en numero.', image: '/images/lobos.png' },
   { id: 'tortitas', number: 'N 002', title: 'Torres de Hanoi', description: 'Mueve bloques entre pilas y deja todas en una sola pila ordenada. Solo puedes mover el bloque de arriba de cada pila, sin poner uno grande sobre uno pequeño.', image: '/images/tortitas.png' },
   { id: 'rojoyazul', number: 'N 003', title: 'Rojo y Azul', description: 'Intercambia la posicion de todas las fichas rojas y azules deslizandolas por el tablero.', image: '/images/rojoyazul.png' },
-  { id: 'aparcar', number: 'N 004', title: 'Aparcamiento', description: 'Desliza el coche rojo hasta la salida de la derecha y libera el camino.', iconLabel: 'P4' }
+  { id: 'aparcar', number: 'N 004', title: 'Aparcamiento', description: 'Desliza el coche rojo hasta la salida de la derecha y libera el camino.', image: '/images/aparcar.png' },
+  { id: 'ships', number: 'N 005', title: 'Ships', description: 'Programa al robot para recorrer el tablero y resolver el reto paso a paso.', image: '/images/ships.png' }
 ]
 
 const emit = defineEmits<{ (e: 'select', id: PuzzleId): void }>()
@@ -145,14 +146,12 @@ onBeforeUnmount(() => {
   position: relative;
   display: grid;
   /* Mantenemos el diseño interno, pero limitamos el tamaño total */
-  grid-template-columns: 62px 1fr;
+  grid-template-columns: 56px 1fr;
   align-items: center;
   gap: 0.8rem;
   text-align: left;
   
-  /* MODIFICADO: No usar 100% en escritorio */
-  width: auto;
-  /* NUEVO: Un ancho máximo cómodo para una tarjeta horizontal */
+  width: min(100%, 600px);
   max-width: 600px;
   /* NUEVO: Centrar las tarjetas dentro de la rejilla si la rejilla es más ancha */
   margin-left: auto;
@@ -208,8 +207,8 @@ onBeforeUnmount(() => {
 }
 
 .card-icon {
-  width: 62px;
-  height: 62px;
+  width: 56px;
+  height: 56px;
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
@@ -223,8 +222,8 @@ onBeforeUnmount(() => {
 }
 
 .card-icon-img {
-  width: 62px;
-  height: 62px;
+  width: 56px;
+  height: 56px;
   border-radius: var(--radius-sm);
   object-fit: contain;
   display: block;
@@ -232,7 +231,7 @@ onBeforeUnmount(() => {
 
 .card-content {
   position: relative;
-  min-height: 82px;
+  min-height: 74px;
 }
 
 .card-num {
@@ -279,6 +278,10 @@ onBeforeUnmount(() => {
 
 .card-aparcar .card-icon {
   background: linear-gradient(145deg, color-mix(in srgb, var(--accent-parking) 84%, white 16%), #7a4b12);
+}
+
+.card-ships .card-icon {
+  background: linear-gradient(145deg, color-mix(in srgb, var(--accent-primary) 86%, white 14%), #1b5f86);
 }
 
 @keyframes status-pulse {
