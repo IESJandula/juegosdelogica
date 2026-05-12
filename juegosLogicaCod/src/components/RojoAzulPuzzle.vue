@@ -253,21 +253,17 @@ function cellStyle(i: number) {
       <h2 class="puz-title">Rojo y Azul</h2>
     </div>
     <div class="puz-desc">
-      <h3 class="puz-desc-title">Enunciado</h3>
       <p class="lead">
-        El tablero tiene dos zonas bien diferenciadas: una zona azul a la izquierda con cuatro casillas, y una
-        zona roja a la derecha con otras cuatro. Al empezar, las fichas están en el lado equivocado: las rojas
-        ocupan la zona azul y las azules la zona roja. Tu misión es devolverlas a su lugar.
+        El tablero tiene dos zonas: una azul a la izquierda y una roja a la derecha. Al empezar, las fichas están en
+        el lado opuesto y tu misión es devolverlas a su lugar.
       </p>
-      <p>
-        Las casillas están conectadas entre sí por caminos visibles, y solo puedes mover una ficha a una casilla
-        vecina que esté vacía en ese momento. En el centro del tablero hay un pequeño cruce que conecta ambas
-        zonas, así que tendrás que pensar bien el orden en que mueves las piezas para no bloquearte a ti mismo.
-      </p>
-      <p>
-        No hay límite de movimientos, pero el ranking premia a quien lo resuelva con menos. Un buen jugador
-        encuentra un flujo continuo sin atascos. ¿Puedes encontrar la secuencia perfecta?
-      </p>
+      <h4 class="puz-rules-title">Reglas</h4>
+      <ul class="puz-rules">
+        <li>Solo puedes mover una ficha a una casilla vecina que esté vacía.</li>
+        <li>Las fichas se desplazan siguiendo los caminos marcados en el tablero.</li>
+        <li>No hay límite de tiempo, pero el ranking premia la eficiencia.</li>
+      </ul>
+      <p class="puz-question">¿Puedes encontrar la secuencia perfecta con el menor número de movimientos?</p>
     </div>
     <div class="player-name" v-if="state.playerName">Jugador: <b>{{ state.playerName }}</b></div>
 
@@ -387,73 +383,39 @@ function cellStyle(i: number) {
   font-family: var(--font-display);
   font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
   color: var(--text-primary);
-}
-
-.puz-desc {
-  position: relative;
-  z-index: 1;
-  margin: 0.95rem 1rem;
-  color: var(--text-secondary);
-  text-align: left;
-  max-width: 760px;
-  margin-inline: auto;
-  padding: 1rem 1.1rem 1.05rem 1.6rem;
-  border-radius: var(--radius-md);
-  background: linear-gradient(180deg, rgba(8, 21, 40, 0.58), rgba(8, 21, 40, 0.28));
-  border: 1px solid rgba(151, 193, 238, 0.2);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 10px 24px rgba(2, 10, 22, 0.18);
-}
-
-.puz-desc::before {
-  content: '';
-  position: absolute;
-  left: 0.8rem;
-  top: 0.8rem;
-  bottom: 0.8rem;
-  width: 4px;
-  border-radius: 2px;
-  background: var(--accent-rojoyazul);
-  box-shadow: 0 0 14px rgba(85, 204, 255, 0.28);
-  pointer-events: none;
-}
-
-.puz-desc-title {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  margin: 0 0 0.55rem;
-  font-family: var(--font-display);
-  font-size: 0.9rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-primary);
-}
-
-.puz-desc-title::before {
-  content: '';
-  width: 1.1rem;
-  height: 2px;
-  border-radius: 999px;
-  background: var(--accent-rojoyazul);
-  box-shadow: 0 0 10px rgba(85, 204, 255, 0.55);
-}
-
-.puz-desc p {
-  margin: 0 0 0.65rem;
-  font-size: 0.84rem;
-  line-height: 1.55;
-}
-
-.puz-desc p:last-child {
-  margin-bottom: 0;
 }
 
 .puz-desc .lead {
+  margin: 0 0 0.4rem;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+.puz-rules-title {
+  margin: 0.4rem 0 0.15rem;
+  font-size: 0.88rem;
   color: var(--text-primary);
-  font-size: 0.9rem;
-  line-height: 1.65;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.puz-rules {
+  margin: 0 0 0.5rem 1.05rem;
+  padding: 0;
+  color: var(--text-secondary);
+}
+
+.puz-rules li {
+  margin: 0.2rem 0;
+}
+
+.puz-question {
+  font-weight: 700;
+  margin-top: 0.45rem;
+  color: var(--text-primary);
 }
 
 .player-name {

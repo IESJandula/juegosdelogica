@@ -418,35 +418,35 @@ const logColor = (line) => {
     </div>
 
     <div class="puz-header">
-      <div>
-        <div class="puz-num">PUZZLE N 005</div>
-        <h2 class="puz-title">SHIPS</h2>
-      </div>
-      <div class="puz-meta">
-        <span class="meta-pill">Fase {{ currentLevel + 1 }} / {{ LEVELS.length }}</span>
-        <span class="meta-pill accent">⭐ {{ starsCollected }} / {{ LEVELS[currentLevel].stars }}</span>
-        <span class="meta-pill score">Σ {{ totalScore }} pts</span>
-      </div>
+      <div class="puz-num">PUZZLE N 005</div>
+      <h2 class="puz-title">SHIPS</h2>
+    </div>
+    <div class="puz-meta">
+      <span class="meta-pill">Fase {{ currentLevel + 1 }} / {{ LEVELS.length }}</span>
+      <span class="meta-pill accent">⭐ {{ starsCollected }} / {{ LEVELS[currentLevel].stars }}</span>
+      <span class="meta-pill score">Σ {{ totalScore }} pts</span>
     </div>
 
     <div class="puz-desc">
-      <h3 class="puz-desc-title">Enunciado</h3>
       <p class="lead">
         Una nave espacial recorre un mapa de casillas de colores y necesita recoger una estrella al final de cada
         fase. Pero aquí no hay control directo: tú eres el programador, no el piloto. Debes construir el algoritmo
         que guíe a la nave hasta su destino.
       </p>
-      <p>
+      <h4 class="puz-rules-title">Reglas</h4>
+      <ul class="puz-rules">
+        <li>
         Tienes tres funciones —f0, f1 y f2— con hasta 8 instrucciones cada una. Los comandos disponibles son
         avanzar, girar a la izquierda y girar a la derecha. También puedes llamar a una función desde otra, lo que
         te permite crear bucles y estructuras recursivas.
-      </p>
-      <p>
+        </li>
+        <li>
         El truco está en las condiciones de color: puedes hacer que un comando solo se ejecute cuando la nave esté
         sobre una casilla roja, verde o azul, lo que te permite construir comportamientos distintos con muy pocas
         instrucciones.
-      </p>
-      <p>
+        </li>
+      </ul>
+      <p class="puz-question">
         La nave debe mantenerse siempre dentro del camino marcado. Si sale, la fase se reinicia. El juego tiene
         cinco fases con mapas cada vez más complejos, y la puntuación final es la suma de comandos usados en todas
         ellas: cuantos menos, mejor. El verdadero reto no es terminar, sino hacerlo con elegancia.
@@ -695,33 +695,39 @@ const logColor = (line) => {
 }
 
 .puz-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  position: relative;
+  z-index: 1;
+  margin: 0.95rem 1rem;
 }
 
 .puz-num {
-  font-size: 0.78rem;
-  color: var(--accent-primary);
-  letter-spacing: 0.2em;
+  font-size: 0.67rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.08em;
   font-family: var(--font-mono);
+  background: rgba(8, 21, 40, 0.7);
+  border: 1px solid rgba(188, 224, 255, 0.3);
+  border-radius: 999px;
+  padding: 0.15rem 0.44rem;
+  display: inline-block;
+  margin-bottom: 0.5rem;
 }
 
 .puz-title {
   font-size: clamp(1.45rem, 2.1vw, 1.85rem);
   color: var(--text-primary);
   font-weight: 800;
-  margin: 0.2rem 0 0;
+  margin: 0;
   font-family: var(--font-display);
+  letter-spacing: 0.02em;
 }
 
 .puz-meta {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
-  justify-content: flex-end;
+  justify-content: flex-start;
+  margin: 0.2rem 1rem 1rem;
 }
 
 .meta-pill {
@@ -738,55 +744,39 @@ const logColor = (line) => {
 .meta-pill.score { color: #ffb347; border-color: rgba(255, 179, 71, 0.35); background: rgba(255, 179, 71, 0.1); }
 
 .puz-desc {
-  position: relative;
-  z-index: 1;
-  margin: 0.95rem 1rem;
-  max-width: 760px;
-  margin-inline: auto;
-  padding: 1rem 1.1rem 1.05rem;
-  border-radius: var(--radius-md);
-  background: linear-gradient(180deg, rgba(8, 21, 40, 0.58), rgba(8, 21, 40, 0.28));
-  border: 1px solid rgba(151, 193, 238, 0.2);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 10px 24px rgba(2, 10, 22, 0.18);
-  color: var(--text-secondary);
+  margin: 0.95rem 1rem 1rem;
   text-align: left;
 }
 
-.puz-desc-title {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  margin: 0 0 0.55rem;
-  font-family: var(--font-display);
-  font-size: 0.9rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-primary);
-}
-
-.puz-desc-title::before {
-  content: '';
-  width: 1.1rem;
-  height: 2px;
-  border-radius: 999px;
-  background: var(--accent-rojoyazul);
-  box-shadow: 0 0 10px rgba(85, 204, 255, 0.55);
-}
-
-.puz-desc p {
-  margin: 0 0 0.65rem;
-  font-size: 0.84rem;
-  line-height: 1.55;
-}
-
-.puz-desc p:last-child {
-  margin-bottom: 0;
-}
-
 .puz-desc .lead {
+  margin: 0 0 0.4rem;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+.puz-rules-title {
+  margin: 0.4rem 0 0.15rem;
+  font-size: 0.88rem;
   color: var(--text-primary);
-  font-size: 0.9rem;
-  line-height: 1.65;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.puz-rules {
+  margin: 0 0 0.5rem 1.05rem;
+  padding: 0;
+  color: var(--text-secondary);
+}
+
+.puz-rules li {
+  margin: 0.2rem 0;
+}
+
+.puz-question {
+  font-weight: 700;
+  margin-top: 0.45rem;
+  color: var(--text-primary);
 }
 
 .player-name {
