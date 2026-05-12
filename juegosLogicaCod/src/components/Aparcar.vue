@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue'
 
 type CellSymbol = 'O' | 'X' | 'F'
 
@@ -10,13 +10,13 @@ type Point = {
 
 type RankingEntry = {
   name: string
-  score: number
+  timeMs: number
   date: string
 }
 
 const CELL_SIZE = 40
 const START_CELL: Point = { r: 4, c: 3 }
-const RANKING_KEY = 'puzzle004-top10'
+const RANKING_KEY = 'puzzle004-top10-time'
 
 const grid: CellSymbol[][] = [
   ['O', 'X', 'O', 'X', 'O', 'X', 'X'],
@@ -33,7 +33,7 @@ function loadRanking(): RankingEntry[] {
     if (!raw) return []
     const parsed = JSON.parse(raw) as RankingEntry[]
     if (!Array.isArray(parsed)) return []
-    return parsed.filter((e) => typeof e.name === 'string' && typeof e.score === 'number')
+    return parsed.filter((e) => typeof e.name === 'string' && typeof e.timeMs === 'number')
   } catch {
     return []
   }
@@ -53,6 +53,10 @@ const state = reactive({
 
 const nameInput = ref('')
 const isRankingShortcut = ref(false)
+const startedAt = ref(0)
+const finishedAt = ref(0)
+const timerNow = ref(0)
+let timerHandle: ReturnType<typeof window.setInterval> | null = null
 const ranking = ref<RankingEntry[]>(loadRanking())
 const rankingTop10 = computed(() => ranking.value)
 
@@ -63,6 +67,34 @@ const won = computed(() => {
 })
 
 const steps = computed(() => Math.max(0, state.path.length - 1))
+
+const elapsedMs = computed(() => {
+  if (!startedAt.value) return 0
+  return Math.max(0, (finishedAt.value || timerNow.value || performance.now()) - startedAt.value)
+})
+
+function formatElapsed(ms: number) {
+  const totalSeconds = Math.floor(ms / 1000)
+  const minutes = Math.floor(totalSeconds / 60)
+  const seconds = totalSeconds % 60
+  const centiseconds = Math.floor((ms % 1000) / 10)
+  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${String(centiseconds).padStart(2, '0')}`
+}
+
+function stopTimer() {
+  if (timerHandle !== null) {
+    window.clearInterval(timerHandle)
+    timerHandle = null
+  }
+}
+
+function startTimer() {
+  stopTimer()
+  timerNow.value = performance.now()
+  timerHandle = window.setInterval(() => {
+    timerNow.value = performance.now()
+  }, 100)
+}
 
 const svgPoints = computed(() =>
   state.path.map((p) => `${p.c * CELL_SIZE + CELL_SIZE / 2},${p.r * CELL_SIZE + CELL_SIZE / 2}`).join(' '),
@@ -161,9 +193,23 @@ function reset() {
   isRankingShortcut.value = false
 }
 
+function restartAfterWin() {
+  state.path = []
+  state.message = ''
+  state.scoreSaved = false
+  isRankingShortcut.value = false
+  finishedAt.value = 0
+  startedAt.value = performance.now()
+  startTimer()
+}
+
 function startGame() {
   const cleaned = nameInput.value.trim()
   if (!cleaned) return
+
+  startedAt.value = performance.now()
+  finishedAt.value = 0
+  startTimer()
 
   if (cleaned.toLowerCase() === 'winnerx') {
     state.playerName = cleaned.slice(0, 24)
@@ -186,15 +232,17 @@ watch(
   () => won.value,
   (isWon) => {
     if (!isWon || state.scoreSaved || !state.playerName.trim() || isRankingShortcut.value) return
+    finishedAt.value = performance.now()
+    stopTimer()
     const next = [
       ...ranking.value,
       {
         name: state.playerName,
-        score: steps.value,
+        timeMs: elapsedMs.value,
         date: new Date().toISOString(),
       },
     ]
-      .sort((a, b) => a.score - b.score || a.date.localeCompare(b.date))
+      .sort((a, b) => a.timeMs - b.timeMs || a.date.localeCompare(b.date))
       .slice(0, 10)
 
     ranking.value = next
@@ -202,6 +250,10 @@ watch(
     state.scoreSaved = true
   },
 )
+
+onBeforeUnmount(() => {
+  stopTimer()
+})
 </script>
 
 <template>
@@ -272,8 +324,8 @@ watch(
     <div class="win-modal-overlay" v-else>
       <div class="success-msg">
         <h3>Puzzle resuelto</h3>
-        <p>Has llegado a la bandera en {{ steps }} pasos.</p>
-        <button class="btn btn-primary" @click="reset">Jugar de nuevo</button>
+        <p>Has llegado a la bandera en {{ formatElapsed(elapsedMs) }}.</p>
+        <button class="btn btn-primary" @click="restartAfterWin">Jugar de nuevo</button>
 
         <div class="ranking-card">
           <div class="ranking-title">Top 10</div>
@@ -284,7 +336,7 @@ watch(
               class="ranking-item"
             >
               <span>{{ entry.name }}</span>
-              <b>{{ entry.score }} pasos</b>
+              <b>{{ formatElapsed(entry.timeMs) }}</b>
             </li>
           </ol>
           <div v-else class="ranking-empty">Sin partidas registradas.</div>
