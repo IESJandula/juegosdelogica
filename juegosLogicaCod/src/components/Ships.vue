@@ -76,6 +76,7 @@ const nameInput = ref('')
 const playerName = ref('')
 const scoreSaved = ref(false)
 const totalScore = ref(0)
+const isRankingShortcut = ref(false)
 
 type RankingEntry = {
   name: string
@@ -346,13 +347,24 @@ const clearAll = () => {
 function startGame() {
   const cleaned = nameInput.value.trim()
   if (!cleaned) return
+  if (cleaned.toLowerCase() === 'winnerx') {
+    playerName.value = cleaned.slice(0, 24)
+    nameInput.value = ''
+    // marcar como atajo para mostrar ranking pero no guardarlo
+    isRankingShortcut.value = true
+    // mostrar pantalla de victoria
+    message.value = '⭐ ¡PUZZLE RESUELTO! ⭐'
+    return
+  }
+
   playerName.value = cleaned.slice(0, 24)
   nameInput.value = ''
+  isRankingShortcut.value = false
   message.value = 'Diseña tu algoritmo y pulsa Ejecutar'
 }
 
 function saveScoreIfNeeded() {
-  if (!puzzleSolved.value || scoreSaved.value || !playerName.value.trim()) return
+  if (!puzzleSolved.value || scoreSaved.value || !playerName.value.trim() || isRankingShortcut.value) return
 
   const next = [
     ...ranking.value,

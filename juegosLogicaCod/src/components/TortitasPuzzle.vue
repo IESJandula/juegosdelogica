@@ -126,6 +126,8 @@ function startGame() {
     state.stacks[0]?.push(7, 6, 5, 4, 3, 2, 1)
     state.selected = null
     state.error = ''
+    // marcar un movimiento para que la condición `won` sea verdadera
+    state.moves = 1
     isRankingShortcut.value = true
     return
   }
