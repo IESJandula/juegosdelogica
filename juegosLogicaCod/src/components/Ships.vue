@@ -109,6 +109,7 @@ function saveRanking(entries: RankingEntry[]) {
 
 const ranking = ref<RankingEntry[]>(loadRanking())
 const rankingTop10 = computed(() => ranking.value)
+const rankingEmpty = computed(() => ranking.value.length === 0)
 
 // Cuenta solo slots que tienen comando (las condiciones solas no puntúan)
 const usedSlotsScore = computed(() =>
@@ -649,7 +650,7 @@ const logColor = (line) => {
 
         <div class="ranking-card">
           <div class="ranking-title">🏆 Top 10</div>
-          <ol v-if="rankingTop10.length > 0" class="ranking-list">
+          <ol v-if="!rankingEmpty" class="ranking-list">
             <li
               v-for="(entry, idx) in rankingTop10"
               :key="`${entry.name}-${entry.date}-${idx}`"

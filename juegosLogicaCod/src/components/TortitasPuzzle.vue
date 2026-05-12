@@ -42,6 +42,7 @@ const nameInput = ref('')
 const isRankingShortcut = ref(false)
 const ranking = ref<RankingEntry[]>(loadRanking())
 const rankingTop10 = computed(() => ranking.value)
+const rankingEmpty = computed(() => ranking.value.length === 0)
 
 function isSortedStack(stack: number[]) {
   for (let i = 0; i < stack.length - 1; i += 1) {
@@ -225,7 +226,7 @@ watch(
 
         <div class="ranking-card">
           <div class="ranking-title">Top 10</div>
-          <ol v-if="rankingTop10.length > 0" class="ranking-list">
+          <ol v-if="!rankingEmpty" class="ranking-list">
             <li v-for="(entry, idx) in rankingTop10" :key="`${entry.name}-${entry.date}-${idx}`" class="ranking-item">
               <span>{{ entry.name }}</span>
               <b>{{ entry.score }} mov.</b>
