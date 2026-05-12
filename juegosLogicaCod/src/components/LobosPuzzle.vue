@@ -251,10 +251,17 @@ watch(
       <h2 class="puz-title">Lobos y Pollitos</h2>
     </div>
     <div class="puz-desc">
-      <p>Hay 3 lobos y 3 pollitos en la orilla izquierda. Usa la barca para llevarlos todos a la
-      orilla derecha. </p>
-      <p>Reglas: la barca lleva maximo 2 animales y no puede haber mas lobos que
-      pollitos en una orilla si hay pollitos.</p>
+      <p class="lead">
+        Tienes 3 lobos y 3 pollitos en la orilla izquierda del río. Tu misión es cruzarlos todos a la orilla
+        derecha usando una pequeña barca.
+      </p>
+      <h4 class="puz-rules-title">Reglas</h4>
+      <ul class="puz-rules">
+        <li>La barca solo puede llevar un máximo de 2 animales por viaje.</li>
+        <li>La barca no se mueve sola: debe ir al menos 1 animal a bordo.</li>
+        <li>En ninguna orilla puede haber más lobos que pollitos si hay pollitos presentes — si eso ocurre, ¡los lobos se los comerán!</li>
+      </ul>
+      <p class="puz-question">¿En cuántos viajes consigues cruzarlos a todos sanos y salvos?</p>
     </div>
     <div class="player-name" v-if="state.playerName">Jugador: <b>{{ state.playerName }}</b></div>
 
@@ -403,6 +410,37 @@ watch(
 
 .puz-title {
   letter-spacing: 0.02em;
+}
+
+.puz-desc .lead {
+  margin: 0 0 0.4rem;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+.puz-rules-title {
+  margin: 0.4rem 0 0.15rem;
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.puz-rules {
+  margin: 0 0 0.5rem 1.05rem;
+  padding: 0;
+  color: var(--text-secondary);
+}
+
+.puz-rules li {
+  margin: 0.2rem 0;
+}
+
+.puz-question {
+  font-weight: 700;
+  margin-top: 0.45rem;
+  color: var(--text-primary);
 }
 
 .game-area {

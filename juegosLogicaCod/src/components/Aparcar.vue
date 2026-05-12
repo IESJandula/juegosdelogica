@@ -190,13 +190,21 @@ watch(
   <div class="puzzle-panel">
     <div class="puz-header">
       <div class="puz-num">PUZZLE N 004</div>
-      <h2 class="puz-title">Dificil de aparcar</h2>
+      <h2 class="puz-title">Difícil de aparcar</h2>
     </div>
 
     <div class="puz-desc">
-      Traza una ruta desde el coche hasta la bandera respetando estas reglas: en una casilla
-      <strong>O</strong> debes seguir en línea recta; en una casilla <strong>X</strong> debes girar. Empieza
-      en el coche (entrada) y alcanza la bandera entrando por debajo.
+      <p class="lead">
+        Tu objetivo es trazar el camino del coche desde la salida hasta la plaza de aparcamiento, respetando las
+        normas de cada casilla.
+      </p>
+      <h4 class="puz-rules-title">Reglas</h4>
+      <ul class="puz-rules">
+        <li>Las casillas <strong>O</strong> obligan a seguir recto: si entras por un lado, debes salir por el mismo eje.</li>
+        <li>Las casillas <strong>X</strong> obligan a girar: no puedes continuar en línea recta.</li>
+        <li>La plaza de aparcamiento (<strong>F</strong>) solo cuenta si entras por debajo.</li>
+      </ul>
+      <p class="puz-question">¿Encuentras la única ruta que respeta todas las normas?</p>
     </div>
 
     <div class="player-name" v-if="state.playerName">Jugador: <b>{{ state.playerName }}</b></div>
@@ -319,6 +327,37 @@ watch(
   letter-spacing: 0.02em;
 }
 
+.puz-desc .lead {
+  margin: 0 0 0.4rem;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+.puz-rules-title {
+  margin: 0.4rem 0 0.15rem;
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.puz-rules {
+  margin: 0 0 0.5rem 1.05rem;
+  padding: 0;
+  color: var(--text-secondary);
+}
+
+.puz-rules li {
+  margin: 0.2rem 0;
+}
+
+.puz-question {
+  font-weight: 700;
+  margin-top: 0.45rem;
+  color: var(--text-primary);
+}
+
 .game-area {
   position: relative;
 }
@@ -386,7 +425,6 @@ watch(
   box-shadow: inset 0 0 0 2px rgba(139, 230, 183, 0.95);
 }
 
-/* Línea roja arriba y líneas laterales internas para la casilla F */
 .cell.is-goal::before {
   content: '';
   position: absolute;
@@ -410,7 +448,6 @@ watch(
   pointer-events: none;
 }
 
-/* Estilo para la X inicial (inicio) en rojo */
 .cell.start-x {
   box-shadow: inset 0 0 0 2px #e74c3c;
 }

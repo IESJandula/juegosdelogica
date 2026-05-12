@@ -94,7 +94,7 @@ function selectStack(si: number) {
 
   const topDestination = toStack[toStack.length - 1]
   if (toStack.length > 0 && topDestination !== undefined && topDestination < topPiece) {
-    state.error = 'No puedes poner una tortita grande sobre una mas pequena.'
+    state.error = 'No puedes poner una tortita grande sobre una mas pequeña.'
     state.selected = null
     return
   }
@@ -163,15 +163,23 @@ watch(
       <h2 class="puz-title">Torres de Hanoi</h2>
     </div>
     <div class="puz-desc">
-      Mueve bloques entre pilas y deja todas en una sola pila ordenada. Solo puedes mover el
-      bloque de arriba de cada pila, sin poner uno grande sobre uno pequeño.
+      <p class="lead">
+        Imagina una tortería con cuatro pilas y siete tortitas de distintos tamaños. Tu objetivo es reunirlas todas en
+        una única pila, perfectamente ordenadas: la más grande en la base y la más pequeña en la cima.
+      </p>
+      <h4 class="puz-rules-title">Reglas</h4>
+      <ul class="puz-rules">
+        <li>Solo puedes mover la tortita que esté arriba de cada pila.</li>
+        <li>No puedes colocar una tortita grande sobre una pequeña.</li>
+        <li>La pila vacía es tu apoyo para reorganizar el resto.</li>
+      </ul>
+      <p class="puz-question">¿Cuántos movimientos necesitarás para resolverlo?</p>
     </div>
     <div class="player-name" v-if="state.playerName">Jugador: <b>{{ state.playerName }}</b></div>
 
     <div class="game-area" v-if="!won">
       <div class="target-display">
-        Objetivo: juntar todas las tortitas en una sola pila de mayor a menor
-        (grande abajo, pequena arriba)
+        Objetivo: juntar todas las tortitas en una sola pila de mayor a menor (grande abajo, pequeña arriba).
       </div>
       <div class="pancake-instruction">
         <span v-if="state.selected === null">Haz clic en una pila para seleccionar la tortita superior</span>
@@ -247,11 +255,101 @@ watch(
 </template>
 
 <style scoped>
+/* ESTILOS DE ENUNCIADO (IGUAL QUE LOBOS) */
+.puzzle-panel {
+  position: relative;
+  font-family: var(--font-body);
+  color: var(--text-primary);
+}
+
+.puz-title {
+  letter-spacing: 0.02em;
+}
+
+.puz-desc .lead {
+  margin: 0 0 0.4rem;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+.puz-rules-title {
+  margin: 0.4rem 0 0.15rem;
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.puz-rules {
+  margin: 0 0 0.5rem 1.05rem;
+  padding: 0;
+  color: var(--text-secondary);
+}
+
+.puz-rules li {
+  margin: 0.2rem 0;
+}
+
+.puz-question {
+  font-weight: 700;
+  margin-top: 0.45rem;
+  color: var(--text-primary);
+}
+
+/* ESTILOS DEL JUEGO (PANCAKES) */
+.target-display {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin-bottom: 1rem;
+  font-style: italic;
+}
+
+.pancake-instruction {
+  text-align: center;
+  font-size: 0.85rem;
+  margin-bottom: 1.5rem;
+  color: var(--accent-blue);
+  min-height: 1.2rem;
+}
+
+.pancake-scene {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  padding: 2rem 1rem;
+  background: rgba(8, 24, 40, 0.2);
+  border-radius: var(--radius-md);
+  min-height: 220px;
+}
+
+.stack-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  transition: background 0.2s;
+}
+
+.stack-col:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.selected-col {
+  background: rgba(85, 204, 255, 0.15) !important;
+  box-shadow: 0 0 0 1px rgba(85, 204, 255, 0.3);
+}
+
 .pancake-stack {
   display: flex;
   flex-direction: column-reverse;
   align-items: center;
   gap: 0.22rem;
+  min-height: 140px;
+  justify-content: flex-start;
 }
 
 .pancake {
@@ -277,6 +375,23 @@ watch(
   pointer-events: none;
 }
 
+.stack-plate {
+  width: 100px;
+  height: 6px;
+  background: #4a5568;
+  border-radius: 4px;
+  margin-top: 4px;
+}
+
+.stack-label {
+  margin-top: 8px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
+/* COMUNES Y MODALES */
 .player-input {
   padding: 0.45rem 0.6rem;
   border-radius: var(--radius-sm);
@@ -295,8 +410,20 @@ watch(
   font-family: var(--font-mono);
 }
 
-.btn-sm {
-  font-size: 0.8rem;
+.move-count {
+  margin-top: 0.72rem;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.error-msg {
+  margin-top: 0.62rem;
+  text-align: center;
+  font-size: 0.84rem;
+  color: var(--state-error);
+  font-weight: 700;
 }
 
 .reset-wrap {
@@ -304,53 +431,38 @@ watch(
   margin-top: 0.8rem;
 }
 
-.win-modal-overlay {
+.win-modal-overlay,
+.name-modal-overlay {
   position: fixed;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
-  background: rgba(8, 24, 40, 0.34);
-  backdrop-filter: blur(7px);
-  z-index: 40;
+  background: rgba(8, 24, 40, 0.4);
+  backdrop-filter: blur(8px);
+  z-index: 50;
 }
 
-.success-msg {
-  position: relative;
+.success-msg,
+.name-modal {
+  background: linear-gradient(135deg, rgba(16, 39, 64, 0.95), rgba(10, 23, 42, 0.98));
+  border: 1px solid rgba(135, 211, 255, 0.3);
+  box-shadow: var(--shadow-elevated);
   width: min(92vw, 480px);
   padding: 1.2rem 1rem;
   border-radius: var(--radius-md);
   color: var(--text-primary);
-  background: linear-gradient(135deg, rgba(16, 39, 64, 0.9), rgba(10, 23, 42, 0.96));
-  border: 1px solid rgba(135, 211, 255, 0.45);
-  box-shadow: var(--shadow-soft);
-  overflow: hidden;
-}
-
-.success-msg h3,
-.success-msg p,
-.success-msg .btn,
-.ranking-card {
-  position: relative;
-  z-index: 1;
+  text-align: center;
 }
 
 .success-msg h3 {
   margin: 0;
-  text-align: center;
   color: #8be6b7;
 }
 
 .success-msg p {
-  text-align: center;
   margin: 0.45rem 0 0.65rem;
   color: var(--text-secondary);
-}
-
-.success-msg .btn {
-  display: block;
-  margin: 0 auto;
 }
 
 .ranking-card {
@@ -364,7 +476,6 @@ watch(
 .ranking-title {
   font-size: 0.86rem;
   font-weight: 700;
-  color: var(--ranking-title);
 }
 
 .ranking-list {
@@ -372,83 +483,24 @@ watch(
   padding-left: 1.1rem;
   font-size: 0.8rem;
   font-family: var(--font-mono);
+  text-align: left;
 }
 
 .ranking-item {
   display: flex;
   justify-content: space-between;
-  gap: 0.5rem;
-  color: var(--ranking-text);
   padding: 0.1rem 0.2rem;
-  border-radius: 6px;
-}
-
-.ranking-item:nth-child(odd) {
-  background: rgba(255, 255, 255, 0.05);
 }
 
 .ranking-item b {
   color: var(--ranking-score);
 }
 
-.ranking-empty {
-  margin-top: 0.35rem;
-  font-size: 0.8rem;
-  font-family: var(--font-mono);
-  color: var(--text-muted);
-}
-
-.name-modal-overlay {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: rgba(7, 18, 33, 0.7);
-  backdrop-filter: blur(6px);
-  display: grid;
-  place-items: center;
-  padding: 1rem;
-  z-index: 45;
-}
-
-.name-modal {
-  width: min(460px, 92vw);
-  background: linear-gradient(160deg, rgba(24, 49, 79, 0.88), rgba(13, 30, 51, 0.94));
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-elevated);
-  padding: 1rem;
-  text-align: center;
-}
-
-.name-modal h3 {
-  margin: 0;
-  font-size: 1rem;
-}
-
-.name-modal p {
-  margin: 0.3rem 0 0.8rem;
-  color: var(--text-secondary);
-  font-size: 0.86rem;
-}
-
-.name-modal-row {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: center;
-}
-
-.name-modal-row .player-input {
-  min-width: 220px;
-}
-
 @media (max-width: 640px) {
   .name-modal-row {
     flex-direction: column;
     align-items: center;
-  }
-
-  .name-modal-row .player-input {
-    width: min(90%, 290px);
+    gap: 10px;
   }
 }
 </style>
