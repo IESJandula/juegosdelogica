@@ -105,6 +105,24 @@ function handleCellClick(r: number, c: number) {
 
   if (destinationSymbol === 'F') {
     if (last.r === r + 1 && last.c === c) {
+      const prevForGoal = state.path[state.path.length - 2]
+      const currentSymbolForGoal = grid[last.r]?.[last.c]
+
+      if (prevForGoal && currentSymbolForGoal) {
+        const inDir = { r: last.r - prevForGoal.r, c: last.c - prevForGoal.c }
+        const outDir = { r: r - last.r, c: c - last.c }
+        const isStraight = inDir.r === outDir.r && inDir.c === outDir.c
+
+        if (currentSymbolForGoal === 'O' && !isStraight) {
+          tempMessage('En O debes seguir recto.')
+          return
+        }
+        if (currentSymbolForGoal === 'X' && isStraight) {
+          tempMessage('En X debes girar.')
+          return
+        }
+      }
+
       state.path.push({ r, c })
       state.message = ''
       return
