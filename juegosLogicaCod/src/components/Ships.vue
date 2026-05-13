@@ -696,16 +696,7 @@ const logColor = (line) => {
   color: var(--text-primary);
 }
 
-.puzzle-panel::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: var(--radius-lg);
-  background: linear-gradient(160deg, var(--bg-card) 0%, var(--bg-card-strong) 100%);
-  border: 1px solid var(--border-soft);
-  box-shadow: var(--shadow-elevated), inset 0 1px 0 rgba(255, 255, 255, 0.11);
-  z-index: -1;
-}
+
 
 .puz-header {
   position: relative;
